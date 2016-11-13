@@ -1,0 +1,12 @@
+[user]
+	email = jeremy.pouyet@epitech.eu
+	name = Jérémy Pouyet
+
+[alias]
+    st = status
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+[core]
+    editor = /usr/bin/emacs -nw
+    pager = diff-so-fancy | less --tabs=1,5 -R
+[gui]
+	encoding = utf-8

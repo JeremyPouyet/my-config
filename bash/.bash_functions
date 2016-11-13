@@ -3,6 +3,16 @@
 ## functions used in bash
 ##
 
+work() {
+    clear ; cd ~/datananas/ ; ls -lh
+    detach slack spotify google-chrome
+    #wargs
+    echo "Starting mongod..."
+    nohup mongod --dbpath='/home/jeremy/datananas/data' < /dev/null > /dev/null 2>&1 &
+    disown $!
+    echo "Done! Have a nice day ! ;)"
+}
+
 ##
 ## decompress all kind of file
 ##
