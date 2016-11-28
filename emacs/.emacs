@@ -1,26 +1,58 @@
-;; add the load path to the default one
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Emacs loading ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
 (add-to-list 'load-path (locate-user-emacs-file "lisp/"))
-;; loading
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
-(ac-config-default)
 
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
 			 ("marmalade" . "https://marmalade-repo.org/packages/")
 			 ("melpa" . "https://melpa.org/packages/")))
 
-;;*****************************************
-;;add ruby syntax highlighting
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Module loading ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
+(ac-config-default)
+
+(require 'linum)
+(require 'highline)
+
+(require 'tramp)
+(require 'speedbar)
+(defconst my-speedbar-buffer-name "SPEEDBAR")
+(setq speedbar-buffer (get-buffer-create my-speedbar-buffer-name)
+      speedbar-frame (selected-frame)
+      dframe-attached-frame (selected-frame)
+      speedbar-select-frame-method 'attached
+      speedbar-verbosity-level 0
+      speedbar-last-selected-file nil)
+(setq right-window (split-window-horizontally 24))
+(setq left-window  (frame-first-window))
+
+(set-buffer speedbar-buffer)
+(speedbar-mode)
+(speedbar-reconfigure-keymaps)
+(speedbar-update-contents)
+(speedbar-set-timer 1)
+(set-window-buffer left-window "SPEEDBAR")
+(set-window-dedicated-p left-window t)
+(toggle-read-only)
+(select-window right-window)
+(defun select-right-window () (select-window right-window))
+
+(ansi-term "/bin/bash")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Languages specific syntax ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Ruby syntax highlighting
 (add-to-list 'auto-mode-alist
 	     '("\\.\\(?:gemspec\\|irbrc\\|gemrc\\|rake\\|rb\\|ru\\|thor\\)\\'" . ruby-mode))
 (add-to-list 'auto-mode-alist
 	     '("\\(Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
 
-(require 'linum)
-(require 'highline)
-(require 'sr-speedbar)
-(require 'markdown-mode)
-
+;; Ruby yard documentation style
 (add-hook 'ruby-mode-hook 'yard-mode)
 
 ;; javascript
@@ -28,8 +60,9 @@
 (setq js2-include-node-externs t)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
-;; enable horizontal scroll!
-(set-default 'truncate-lines t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Remove unwanted buffers and warnings ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Makes *scratch* empty.
 (setq initial-scratch-message "")
@@ -47,45 +80,35 @@
 ;; Don't show *Buffer list* when opening multiple files at the same time.
 (setq inhibit-startup-buffer-menu t)
 
-;; Show only one active window when opening multiple files at the same time.
-(add-hook 'window-setup-hook 'delete-other-windows)
+;; no annoying warning
+(require 'cl-lib)
+(defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+  "Prevent annoying \"Active processes exist\" query when you quit Emacs."
+  (cl-letf (((symbol-function #'process-list) (lambda ())))
+    ad-do-it))
 
-;;****************************************
-(sr-speedbar-toggle)
+;; Disable toolbar
+(tool-bar-mode -1)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Emacs custom variables ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
- '(ansi-color-names-vector
-   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
  '(column-number-mode t)
  '(custom-enabled-themes (quote (tsdh-dark)))
  '(delete-selection-mode nil)
  '(fringe-mode (quote (nil . 0)) nil (fringe))
+ '(inhibit-startup-screen t)
  '(js2-strict-cond-assign-warning t)
  '(mark-even-if-inactive t)
- '(show-paren-mode t)
- '(speedbar-before-popup-hook nil)
- '(speedbar-before-visiting-file-hook (quote (push-mark)))
- '(speedbar-default-position (quote left))
- '(speedbar-frame-parameters
-   (quote
-    ((minibuffer)
-     (width . 20)
-     (border-width . 0)
-     (menu-bar-lines . 0)
-     (tool-bar-lines . 0)
-     (unsplittable . 0)
-     (left-fringe . 1))))
- '(speedbar-show-unknown-files t)
- '(sr-speedbar-width-console 50)
- '(sr-speedbar-width-x 50))
-; '(tooltip-mode nil))
+ '(show-paren-mode t))
 
-(defadvice hi-lock-set-pattern (around use-overlays activate)
+(defadvice hi-lo3ck-set-pattern (around use-overlays activate)
   (let ((font-lock-fontified nil))
     ad-do-it))
 ;;****************************************
@@ -140,17 +163,10 @@
 ;; (add-hook 'find-file-hook 'tc_lvl)
 
 
-;;****************************************
-;; Better gdb
-
-(setq-default gdb-many-windows t)
-
 ;; enable fci mode for all files
-(add-hook 'c-mode-hook 'fci-mode)
-(add-hook 'c++-mode-hook 'fci-mode)
+;; (add-hook 'c-mode-hook 'fci-mode)
+;; (add-hook 'c++-mode-hook 'fci-mode)
 
-;; columns to fill
-(setq-default fci-rule-column '80)
 ;; color of the filling characters
 (setq fci-rule-character-color "#00F")
 
@@ -160,16 +176,14 @@
 ;;activate linum mode by default
 (global-linum-mode 1)
 
-;;****************************************
-;; accolades indentation
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Indentation ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Indente automatiquement lorsque l'on appuie sur Entree
 (global-set-key (kbd "RET") 'newline-and-indent)
 ;; gere les indentations d'accolades
 (setq c-default-style "k&r")
-
-;;****************************************
-;; indentation C
 
 ;; change size of tabs to 2 spaces
 (setq-default c-basic-offset 2)
@@ -184,16 +198,15 @@
 ;; To customize the background color
 (set-face-background 'highline-face "#444")
 
-;;****************************************
-;;
-
 ;;show column
 (column-number-mode 1)
 
+;; enable horizontal scroll!
+(set-default 'truncate-lines t)
+
 ;;****************************************
 ;; delete trailing whitespaces
-
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;****************************************
 ;; replace tabs by spaces
@@ -208,7 +221,6 @@
 ;;              (add-hook 'before-save-hook
 ;;                        (lambda ()
 ;;                          (untabify (point-min) (point-max))))))
-
 
 ;; Key binding
 (global-set-key (kbd "C-<right>") 'forward-word)
@@ -236,6 +248,8 @@
 (global-set-key (kbd "M-n") 'next-error)
 (global-set-key (kbd "M-p") 'previous-error)
 (global-set-key (kbd "C-d") 'kill-whole-line)
+(global-set-key (kbd "C-<") 'shrink-window-horizontally)
+(global-set-key (kbd "C->") 'enlarge-window-horizontally)
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -280,3 +294,7 @@
  '(whitespace-space ((t (:foreground "#888"))))
  '(whitespace-tab ((t (:background "#777" :foreground "#bbb"))))
  '(widget-button ((t (:foreground "#00aa00" :weight bold)))))
+
+(setq ansi-color-names-vector
+      ["black" "tomato" "PaleGreen2" "gold1"
+       "DeepSkyBlue1" "MediumOrchid1" "cyan" "white"])
