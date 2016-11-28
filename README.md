@@ -1,11 +1,12 @@
-# mybashrc
-My .bashrc and files that come with it
+# my-config
+My emacs, bash and git config
 
-After losing all these precious files that makes you use bash better several times, I decided to open this safety repository. Maybe some of you will find useful things in it.
+After losing all these precious files that makes you use Linux better several times, I decided to open this safety repository. Maybe some of you will find useful things in it.
 
-.mybashrc -> my conf, so the default conf is intact.  
-.bash_functions -> some useful functions to save some times.  
-.bash_alias -> my aliases, the vast majority are used to save times and have a clean terminal.  
+* git/ -> contains my git config. Nothing awsome but I like it!  
+* emacs/ -> my precious emacs config that I like so much!  
+* bash/.bash_functions -> some useful functions to save some times.  
+* bash/.bash_alias -> my aliases, the vast majority are used to save times and have a clean terminal.  
 
 To have a good use of my conf, I usually add this code to the default .bashrc:
 
