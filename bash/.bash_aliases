@@ -11,6 +11,10 @@ alias ..='cd ..; l'
 alias cl='cd ~; l'
 alias nfs_restart='sudo /etc/init.d/nfs-kernel-server restart'
 alias python='python3.5'
+alias yt='mpsyt'
+alias youtube='yt'
+alias s="source ~/.bashrc"
+alias map="telnet maspscii.me"
 
 # Ubuntu/Linux 64-bit, GPU enabled, Python 3.5
 # Requires CUDA toolkit 7.5 and CuDNN v4. For other versions, see "Install from sources" below.

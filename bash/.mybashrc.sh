@@ -10,12 +10,19 @@ export LESS_TERMCAP_ue=$(printf '\e[0m') # leave underline mode
 export LESS_TERMCAP_us=$(printf '\e[04;36m') # enter underline mode - cyan
 
 # Extend arrow function behaviour
-bind '"\e[A"':history-search-backward
-bind '"\e[B"':history-search-forward
+# bind '"\e[A"':history-search-backward
+# bind '"\e[B"':history-search-forward
 
 # rvm
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 source $HOME/.rvm/scripts/rvm
 
 # Prompt
-PS1="[\e[31m\j\e[0m][\e[33m\t\e[0m]\n{\e[34m\W\e[0m}$> "
+WHITE="\[\e[m\]"
+RED="\[\033[31m\]"
+GREEN="\[\033[32m\]"
+YELLOW="\[\e[;33m\]"
+BLUE="\[\e[;34m\]"
+PS1="\n[${RED}\j${WHITE}][${YELLOW}\t${WHITE}]${GREEN}\$(__git_ps1)${WHITE}\n{${BLUE}\w${WHITE}}$> "
+
+source $HOME/datananas/env.sh

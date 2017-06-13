@@ -3,9 +3,12 @@
 ## functions used in bash
 ##
 
+##
+## Launch working environment
+##
 work() {
     clear ; cd ~/datananas/ ; ls -lh
-    detach slack spotify google-chrome emacs
+    detach slack spotify chromium-browser
     #wargs
     echo "Starting mongod..."
     nohup mongod --dbpath='/home/jeremy/datananas/data' < /dev/null > /dev/null 2>&1 &
@@ -14,26 +17,43 @@ work() {
 }
 
 ##
+## up 5 instead of cd ../../../../..
+##
+up() {
+  local d=""
+  limit=$1
+  for ((i=1 ; i <= limit ; i++))
+    do
+      d=$d/..
+    done
+  d=$(echo $d | sed 's/^\///')
+  if [ -z "$d" ]; then
+    d=..
+  fi
+  cd $d
+}
+
+##
 ## decompress all kind of file
 ##
 extract () {
     if [ ! -f "$1" ] ; then
-      echo "'$1' is not a valid file!"
-      return 1
+	echo "'$1' is not a valid file!"
+	return 1
     fi
 
     # Assoc. array of commands for extracting archives
     declare -A xcmd
     xcmd=(
-      [.tar.bz2]="tar xvjf"
-      [.tar.gz]="tar xvzf"
-      [.bz2]="bunzip2"
-      [.rar]="unrar x"
-      [.gz]="gunzip"
-      [.tar]="tar xvf"
-      [.zip]="unzip"
-      [.Z]="uncompress"
-      [.7z]="7z x"
+	[.tar.bz2]="tar xvjf"
+	[.tar.gz]="tar xvzf"
+	[.bz2]="bunzip2"
+	[.rar]="unrar x"
+	[.gz]="gunzip"
+	[.tar]="tar xvf"
+	[.zip]="unzip"
+	[.Z]="uncompress"
+	[.7z]="7z x"
     )
     # extension aliases
     xcmd[.tbz2]="${xcmd[.tar.bz2]}"
@@ -42,27 +62,27 @@ extract () {
     # See which extension the given file uses
     fext=""
     for i in ${!xcmd[@]}; do
-      if [ $(grep -o ".\{${#i}\}$" <<< $1) == "$i" ]; then
-        fext="$i"
-        break
-      fi
+	if [ $(grep -o ".\{${#i}\}$" <<< $1) == "$i" ]; then
+            fext="$i"
+            break
+	fi
     done
 
     # Die if we couldn't discover what archive type it is
     if [ -z "$fext" ]; then
-      echo "don't know how to extract '$1'..."
-      return 1
+	echo "don't know how to extract '$1'..."
+	return 1
     fi
 
     # Extract & cd if we can
     fbase=$(basename "$1" "$fext")
     if ${xcmd[$fext]} "$1" && [ -d "$fbase" ]; then
-      cd "$fbase"
+	cd "$fbase"
     fi
 }
 
 calc () {
-     echo "$1" | bc
+    echo "$1" | bc
 }
 
 ##
@@ -85,15 +105,6 @@ brightness() {
 }
 
 ##
-## destroy the current vagrant environment and destroy all virtualbox VM
-## To use if I only have one VM
-vagrant_clean() {
-    vagrant destroy
-    rm -rf .vagrant
-    rm -rf "~/VirtualBox\ VMs/*"
-}
-
-##
 ## reduce brightness at its minimum and start gtk-redshift
 ##
 night_mode() {
@@ -105,7 +116,7 @@ night_mode() {
 ##
 ## detach processes from the current terminal
 ##
-detach() {
+detach () {
     if [ "$#" -eq 0 ]; then
 	echo "Missing command parameter"
 	exit
@@ -115,4 +126,12 @@ detach() {
 	nohup "$prgrm" < /dev/null > /dev/null 2>&1 &
 	disown $! # $! -> pid of the last process
     done
+}
+
+ngrep () {
+    if [ "$#" -eq 0 ]; then
+	echo "Missing command parameter"
+	exit
+    fi
+    grep -n -E "$1|$"
 }

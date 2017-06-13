@@ -5,8 +5,17 @@
 [alias]
     st = status
     lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    unadd = reset HEAD
+    po = "!git push --set-upstream origin \"$(git rev-parse --abbrev-ref HEAD)\""
+    prb = "remote prune origin"
+    co = commit -a
+    d = diff --stat
 [core]
     editor = /usr/bin/emacs -nw
     pager = diff-so-fancy | less --tabs=1,5 -R
 [gui]
 	encoding = utf-8
+[color]
+	ui = auto
+[push]
+	default = current

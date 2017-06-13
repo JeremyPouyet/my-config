@@ -1,46 +1,110 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Emacs loading ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (add-to-list 'load-path (locate-user-emacs-file "lisp/"))
 
+(package-initialize)
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-			 ("marmalade" . "https://marmalade-repo.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")))
+ 			 ("marmalade" . "https://marmalade-repo.org/packages/")
+ 			 ("melpa" . "https://melpa.org/packages/")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Install missing packages ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq jpk-packages
+      '(
+	editorconfig,
+	linum,
+	highline,
+	auto-complete-config,
+	js2-mode,
+	yard-mode
+	sublimity-mode,
+	fci-mode
+	))
+
+(let ((refreshed nil))
+  (when (not package-archive-contents)
+    (package-refresh-contents)
+    (setq refreshed t))
+  (dolist (pkg jpk-packages)
+    (when (and (not (package-installed-p pkg))
+	       (assoc pkg package-archive-contents))
+      (unless refreshed
+	(package-refresh-contents)
+	(setq refreshed t))
+      (package-install pkg))))
+
+(defun package-list-unaccounted-packages ()
+  "Like `package-list-packages', but shows only the packages that
+  are installed and are not in `jpk-packages'.  Useful for
+  cleaning out unwanted packages."
+  (interactive)
+  (package-show-package-list
+   (remove-if-not (lambda (x) (and (not (memq x jpk-packages))
+				   (not (package-built-in-p x))
+				   (package-installed-p x)))
+		  (mapcar 'car package-archive-contents))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Module loading ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; (require 'auto-complete)
+;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20170124.1845/dict")
+;; (ac-config-default)
+
+;; (global-auto-complete-mode t)
+
+(require 'auto-complete)
+(global-auto-complete-mode t)
+
 (require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
 (ac-config-default)
+
+;; limit the number of column per line
+(require 'fill-column-indicator)
+(define-globalized-minor-mode global-fci-mode fci-mode (lambda () (fci-mode t)))
+(global-fci-mode t)
+(setq fci-rule-column 90)
 
 (require 'linum)
 (require 'highline)
 
-(require 'tramp)
-(require 'speedbar)
-(defconst my-speedbar-buffer-name "SPEEDBAR")
-(setq speedbar-buffer (get-buffer-create my-speedbar-buffer-name)
-      speedbar-frame (selected-frame)
-      dframe-attached-frame (selected-frame)
-      speedbar-select-frame-method 'attached
-      speedbar-verbosity-level 0
-      speedbar-last-selected-file nil)
-(setq right-window (split-window-horizontally 24))
-(setq left-window  (frame-first-window))
+;; (require 'speedbar)
+;; (defconst my-speedbar-buffer-name "SPEEDBAR")
+;; (setq speedbar-buffer (get-buffer-create my-speedbar-buffer-name)
+;;      speedbar-frame (selected-frame)
+;;      dframe-attached-frame (selected-frame)
+;;      speedbar-select-frame-method 'attached
+;;      speedbar-verbosity-level 0
+;;      speedbar-last-selected-file nil)
+;; (setq right-window (split-window-horizontally 24))
+;; (setq left-window  (frame-first-window))
 
-(set-buffer speedbar-buffer)
-(speedbar-mode)
-(speedbar-reconfigure-keymaps)
-(speedbar-update-contents)
-(speedbar-set-timer 1)
-(set-window-buffer left-window "SPEEDBAR")
-(set-window-dedicated-p left-window t)
-(toggle-read-only)
-(select-window right-window)
-(defun select-right-window () (select-window right-window))
+;; (set-buffer speedbar-buffer)
+;; (speedbar-mode)
+;; (speedbar-reconfigure-keymaps)
+;; (speedbar-update-contents)
+;; (speedbar-set-timer 1)
+;; (set-window-buffer left-window "SPEEDBAR")
+;; (set-window-dedicated-p left-window t)
+;; (toggle-read-only)
+;; (select-window right-window)
+;; (defun select-right-window () (select-window right-window))
+
+(require 'editorconfig)
+(editorconfig-mode 1)
+
+;; file preview
+;; (sublimity-mode 1)
 
 (ansi-term "/bin/bash")
+
+;; enable clipboard in emacs with C-shift-v
+(setq x-select-enable-clipboard t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Languages specific syntax ;;;;;
@@ -56,9 +120,16 @@
 (add-hook 'ruby-mode-hook 'yard-mode)
 
 ;; javascript
-(setq js-indent-level 2)
+(defvar custom-js-externs-global '("it" "describe" "before" "after" "expect"))
+(setq js2-global-externs custom-js-externs-global)
 (setq js2-include-node-externs t)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+;; python
+
+;; (setq auto-mode-alist
+;;       (cons '("\\.py\\" . python-mode) auto-mode-alist))
+(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Remove unwanted buffers and warnings ;;;;;
@@ -102,8 +173,10 @@
  '(column-number-mode t)
  '(custom-enabled-themes (quote (tsdh-dark)))
  '(delete-selection-mode nil)
- '(fringe-mode (quote (nil . 0)) nil (fringe))
  '(inhibit-startup-screen t)
+ '(js2-basic-offset 2)
+ '(js2-bounce-indent-p t)
+ '(js2-mode-assume-strict t)
  '(js2-strict-cond-assign-warning t)
  '(mark-even-if-inactive t)
  '(show-paren-mode t))
@@ -206,7 +279,7 @@
 
 ;;****************************************
 ;; delete trailing whitespaces
-;(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;****************************************
 ;; replace tabs by spaces
@@ -256,6 +329,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :background "gray20" :foreground "white smoke" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :family "Deja vu sans mono"))))
  '(Chapter ((t (:background "black" :foreground "red"))))
  '(border ((t (:background "black" :foreground "#2275f7"))))
  '(done ((t (:foreground "ForestGreen" :weight bold))))
@@ -279,8 +353,8 @@
  '(hi-yellow ((t (:foreground "#bdbd00" :weight bold))))
  '(highline-face ((t (:background "#444"))))
  '(isearch-fail ((t (:background "#4400aa"))))
+ '(js2-function-call ((t (:foreground "color-247"))))
  '(js2-function-param ((t (:foreground "color-127"))))
- '(js2-jsdoc-html-tag-delimiter ((t (:foreground "color-214"))))
  '(lazy-highlight ((t (:background "magenta" :foreground "cyan"))))
  '(linum ((t (:inherit (shadow default) :background "color-235" :foreground "Orange"))))
  '(match ((t (:background "#111111"))))
