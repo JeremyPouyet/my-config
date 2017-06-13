@@ -2,9 +2,6 @@
 ;;;;; Emacs loading ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-to-list 'load-path (locate-user-emacs-file "lisp/"))
-
-(package-initialize)
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
  			 ("marmalade" . "https://marmalade-repo.org/packages/")
  			 ("melpa" . "https://melpa.org/packages/")))
@@ -13,29 +10,19 @@
 ;;;;; Install missing packages ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(setq jpk-packages
-      '(
-	editorconfig,
-	linum,
-	highline,
-	auto-complete-config,
-	js2-mode,
-	yard-mode
-	sublimity-mode,
-	fci-mode
-	))
+(setq package-list '(popup editorconfig linum highline auto-complete js2-mode
+		     yard-mode fill-column-indicator cl-lib speedbar))
 
-(let ((refreshed nil))
-  (when (not package-archive-contents)
-    (package-refresh-contents)
-    (setq refreshed t))
-  (dolist (pkg jpk-packages)
-    (when (and (not (package-installed-p pkg))
-	       (assoc pkg package-archive-contents))
-      (unless refreshed
-	(package-refresh-contents)
-	(setq refreshed t))
-      (package-install pkg))))
+(package-initialize)
+
+;; fetch the list of packages available
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; install the missing packages
+(dolist (package package-list)
+  (unless (package-installed-p package)
+        (package-install package)))
 
 (defun package-list-unaccounted-packages ()
   "Like `package-list-packages', but shows only the packages that
@@ -51,12 +38,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Module loading ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; (require 'auto-complete)
-;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20170124.1845/dict")
-;; (ac-config-default)
-
-;; (global-auto-complete-mode t)
 
 (require 'auto-complete)
 (global-auto-complete-mode t)
@@ -97,9 +78,6 @@
 
 (require 'editorconfig)
 (editorconfig-mode 1)
-
-;; file preview
-;; (sublimity-mode 1)
 
 (ansi-term "/bin/bash")
 
