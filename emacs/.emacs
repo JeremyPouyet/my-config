@@ -87,7 +87,8 @@
 (setq select-enable-clipboard t)
 
 ;; go to function definition
-(dumb-jump-mode 1)
+(use-package dumb-jump
+  :config (dumb-jump-mode 1))
 
 ;; indent a whole file
 (defun indent-buffer ()
