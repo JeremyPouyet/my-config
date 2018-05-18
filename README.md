@@ -27,7 +27,3 @@ if [ -f ~/.bash_functions ]; then
 fi
 
 ```
-
-To take advantage of my custom git diff, you'll need the npm package diff-so-fancy so:
-
-`npm install -g diff-so-fancy`
