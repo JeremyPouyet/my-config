@@ -3,13 +3,16 @@
 	name = Jérémy Pouyet
 
 [alias]
-  st = status
-  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-  unadd = reset HEAD
-  po = "!git push --set-upstream origin \"$(git rev-parse --abbrev-ref HEAD)\""
-  prb = "remote prune origin"
-  co = commit -a
-  d = diff --stat
+        checkd = "!git checkout development && git pull origin development"
+	checkm = "!git checkout master && git pull origin master"
+        co = commit -a
+        d = diff --stat
+        lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+        prb = "remote prune origin"
+       	pullc = !git pull origin "$(git symbolic-ref --short HEAD)"
+	pushc = !git push origin "$(git symbolic-ref --short HEAD)"
+        st = status
+        unadd = reset HEAD
 [core]
   editor = /usr/bin/emacs -nw
   pager = diff-so-fancy | less --tabs=1,5 -R
